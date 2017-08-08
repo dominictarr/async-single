@@ -1,3 +1,3 @@
 
-require('./index')(require('../fun'))
+require('./index')(require('../simple/fun'))
 

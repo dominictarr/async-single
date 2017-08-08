@@ -1,1 +1,1 @@
-require('./index')(require('../proto'))
+require('./index')(require('../simple/proto'))

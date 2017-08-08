@@ -1,3 +1,3 @@
 
-require('./index')(require('../closures'))
+require('./index')(require('../simple/closures'))
 

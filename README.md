@@ -1,5 +1,29 @@
 # async-single
 
+run an async function but only once at a time.
+
+also, debounce the function with timers.
+
+## example
+
+``` js
+var AsyncSingle = requrie('async-single')
+
+var as = AsyncSingle(function (value, cb) {
+  fs.writeFile(filename, value, cb) //or some other async thing!
+})
+
+//write as often as you like.
+//not every write will happen,
+//but it will write every so often
+as.write('hello world')
+
+as.write('again!')
+
+//when you close, it will finish off any writes!
+as.close(function () {...})
+```
+
 exploration of async programming style,
 by solving the same problem the same way several times.
 
@@ -36,6 +60,7 @@ this simple as an exercise!)
 ## License
 
 MIT
+
 
 
 

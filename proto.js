@@ -1,31 +1,56 @@
 
 module.exports = Single
 
-function Single (async) {
-  if(!(this instanceof Single)) return new Single(async)
+function Single (async, _setTimeout) {
+  if(!(this instanceof Single)) return new Single(async, _setTimeout)
   this.writing = false
   this.value = null
   this.onDrain = null
   this._async = async
+  this._setTimeout = _setTimeout || setTimeout
 }
 
 Single.prototype.write = function (value) {
   this.value = value
   if(!this.writing)
-    this._write()
+    this._timeout()
 }
 
 Single.prototype._write = function () {
   this.writing = true
   var value = this.value
+  if(value === null) throw new Error('cannot write null')
   this.value = null
-  this._async(value, this._cb.bind(this))
+  this._async(value, this._written.bind(this))
 }
 
-Single.prototype._cb = function () {
+Single.prototype._timeout = function (delay) {
+  clearTimeout(this._timer)
+  this._timer = this._setTimeout(
+    this._write.bind(this),
+    delay == null ? Math.max(200, 60e3 - (Date.now() - this._ts)) : delay
+  )
+
+  if(delay !== 0)
+    this._timer.unref && this._timer.unref()
+}
+
+Single.prototype._written = function () {
+  this._ts = Date.now()
   this.writing = false
-  if(this.value) this._write()
-  else if(this.onDrain) this.onDrain()
+  if(this.value) this.write(this.value)
+  else {
+    if(this.onDrain) this.onDrain()
+    var cb = this._cb
+    this._cb = null
+    if(cb) cb()
+  }
+}
+
+Single.prototype.close = function (cb) {
+  if(this.writing) this._cb = cb
+  else if(this.value) this._timeout(0)
+  else cb()
 }
 
 /*
@@ -40,4 +65,15 @@ and duplicate some code though.
 and it's a different distinction from private/public.
 _cb is an update.
 */
+
+
+
+
+
+
+
+
+
+
+
 

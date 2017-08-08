@@ -1,69 +1,55 @@
 
-module.exports = function (async) {
-  var self
+module.exports = function (async, delay) {
+  delay = delay || setTimeout
+  var self, timer, ts = 0, cb
+  function write (_value, timeout) {
+    self.value = _value
+    clearTimeout(timer)
+    timer = delay(function () {
+      if(self.writing) return
+      self.writing = true
+      self.value = null
+      async(_value, function () {
+        ts = Date.now()
+        self.writing = false
+        if(self.value) //write again
+          write(self.value, cb ? 0 : null)
+        else {
+          self.onDrain && self.onDrain()
+          if(cb) {
+            var _cb = cb; cb = null; _cb()
+          }
+        }
+      })
+    },
+      timeout == null
+      ? Math.max(200, 60e3 - (Date.now() - ts))
+      : timeout
+    )
+    if(timeout !== 0 && timer.unref) timer.unref()
+  }
   return self = {
     writing: false,
-    write: function (_value) {
-      (function flush (_value) {
-        if(self.writing) return
-        self.writing = true
-        self.value = null
-        async(_value, function () {
-          self.writing = false
-          if(self.value) //write again
-            flush(self.value)
-          else
-            self.onDrain && self.onDrain()
-        })
-      })(self.value = _value)
+    write: write,
+    close: function (_cb) {
+      if(!self.writing && self.value == null)
+        _cb()
+      else {
+        cb = _cb
+        if(self.value) write(self.value, 0)
+      }
     }
   }
 }
 
 /*
-at just 21 lines this is the smallest by far.
-but it's very dense. Okay it was actually more like 28
-then i compacted it a bit. normally I wouldn't use
-self.property but it was easier to test if some state
-was exposed.
+this example is expanded from simple/closures
+to be also able to remember not fire too frequently.
 
-there are some basic patterns here:
+also, delays the next write. It's getting pretty ugly now.
+but the tests are pretty good.
 
-```
-if(writing) return
-writing = true
-
-...(..., function () {
-  writing = false
-})
-```
-
-make sure we do not enter ... until we are out of that section.
-
-```
-var _value = value; value = null
-func(_value)
-```
-unset a state value before using it, this is useful because
-you know that func cannot use `value` (btw, this was all you
-needed to prevent the DAO hack!)
-
-if the change is increment instead of assign null
-this operation is very terse: `func(++value)` a pity
-a similar operation doesn't exist for assignment!
-
-recursive self-evaluating function.
-
-```
-;(function flush () {
-  ...
-  flush()
-})()
-```
-
-One thing I like about this pattern is that you know flush
-is never called from outside itself. It can't be because
-nothing else can refer to it! nothing else can see the name
-"flush"
 */
+
+
 

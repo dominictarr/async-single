@@ -1,6 +1,7 @@
 
-module.exports = function (async, delay) {
-  delay = delay || setTimeout
+module.exports = function (async, opts) {
+  opts = opts || {}
+  delay = opts.setTimeout || setTimeout
   var self, timer, ts = 0, cb
   function write (_value, timeout) {
     self.value = _value
@@ -23,7 +24,10 @@ module.exports = function (async, delay) {
       })
     },
       timeout == null
-      ? Math.max(200, 60e3 - (Date.now() - ts))
+      ? Math.max(
+          (opts.min || 200),
+          (opts.max || 60e3) - (Date.now() - ts)
+        )
       : timeout
     )
     if(timeout !== 0 && timer.unref) timer.unref()
@@ -50,6 +54,4 @@ also, delays the next write. It's getting pretty ugly now.
 but the tests are pretty good.
 
 */
-
-
 

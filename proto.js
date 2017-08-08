@@ -1,13 +1,14 @@
 
 module.exports = Single
 
-function Single (async, _setTimeout) {
-  if(!(this instanceof Single)) return new Single(async, _setTimeout)
+function Single (async, opts) {
+  if(!(this instanceof Single)) return new Single(async, opts)
   this.writing = false
   this.value = null
   this.onDrain = null
   this._async = async
-  this._setTimeout = _setTimeout || setTimeout
+  this._options = opts || {}
+  this._setTimeout = opts && opts.setTimeout || setTimeout
 }
 
 Single.prototype.write = function (value) {
@@ -28,7 +29,10 @@ Single.prototype._timeout = function (delay) {
   clearTimeout(this._timer)
   this._timer = this._setTimeout(
     this._write.bind(this),
-    delay == null ? Math.max(200, 60e3 - (Date.now() - this._ts)) : delay
+    delay == null ? Math.max(
+      this._options.min,
+      this._options.max - (Date.now() - this._ts)
+    ) : delay
   )
 
   if(delay !== 0)

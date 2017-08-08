@@ -9,9 +9,11 @@ module.exports = function (create) {
 
     var async = create(function (_value, _cb) {
       value = _value; cb = _cb
-    }, function (_fn, time) {
-      fn = _fn
-      return 1
+    }, {
+      setTimeout:function (_fn, time) {
+        fn = _fn
+        return 1
+      }
     })
 
     t.equal(async.writing, false)
@@ -41,9 +43,11 @@ module.exports = function (create) {
     var async = create(function (_value, _cb) {
       called ++
       value = _value; cb = _cb
-    }, function (_fn) {
-      fn = _fn
-      return 1
+    }, {
+      setTimeout: function (_fn) {
+        fn = _fn
+        return 1
+      }
     })
     t.equal(async.writing, false)
 
@@ -104,9 +108,11 @@ module.exports = function (create) {
 
     var async = create(function (_value, _cb) {
       value = _value; cb = _cb
-    }, function (_fn, time) {
-      fn = _fn
-      return 1
+    }, {
+      setTimeout: function (_fn, time) {
+        fn = _fn
+        return 1
+      }
     })
 
     async.write(1)
@@ -127,10 +133,12 @@ module.exports = function (create) {
 
     var async = create(function (_value, _cb) {
       value = _value; cb = _cb
-    }, function (_fn, time) {
-      console.log('timeout')
-      fn = _fn
-      return 1
+    }, {
+      setTimeout: function (_fn, time) {
+        console.log('timeout')
+        fn = _fn
+        return 1
+      }
     })
 
     async.write(1)
@@ -147,9 +155,4 @@ module.exports = function (create) {
     fn()
     cb()
   })
-
-
 }
-
-
-

@@ -8,7 +8,7 @@ function Single (async, opts) {
   this.onDrain = null
   this._async = async
   this._options = opts || {}
-  this._setTimeout = opts && opts.setTimeout || setTimeout
+  this._setTimeout = opts && opts.setTimeout || function (fn, delay) { return setTimeout(fn, delay) }
 }
 
 Single.prototype.write = function (value) {
@@ -69,15 +69,4 @@ and duplicate some code though.
 and it's a different distinction from private/public.
 _cb is an update.
 */
-
-
-
-
-
-
-
-
-
-
-
 

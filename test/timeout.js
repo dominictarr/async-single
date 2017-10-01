@@ -155,4 +155,35 @@ module.exports = function (create) {
     fn()
     cb()
   })
+
+  tape('close, next write', function (t) {
+
+    var value, called = false, cb, fn
+
+    var async = create(function (_value, _cb) {
+      value = _value; cb = _cb
+    }, {
+      setTimeout: function (_fn, time) {
+        fn = _fn
+        return 1
+      }
+    })
+
+    async.write(1)
+
+    t.equal(async.writing, false)
+    fn()
+    t.equal(async.writing, true)
+    async.write(2)
+    cb()
+
+    async.close(function () {
+      t.end()
+    })
+
+    fn()
+    cb()
+
+  })
 }
+

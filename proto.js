@@ -53,7 +53,10 @@ Single.prototype._written = function () {
 
 Single.prototype.close = function (cb) {
   if(this.writing) this._cb = cb
-  else if(this.value) this._timeout(0)
+  else if(this.value) {
+    this._cb = cb
+    this._timeout(0)
+  }
   else cb()
 }
 
@@ -69,4 +72,6 @@ and duplicate some code though.
 and it's a different distinction from private/public.
 _cb is an update.
 */
+
+
 

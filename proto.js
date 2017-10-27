@@ -12,7 +12,6 @@ function Single (async, opts) {
 }
 
 Single.prototype.write = function (value) {
-  //if(value === null) throw new Error('cannot write null')
   this.value = value
   if(!this.writing)
     this._timeout()
@@ -21,7 +20,6 @@ Single.prototype.write = function (value) {
 Single.prototype._write = function () {
   this.writing = true
   var value = this.value
-//  if(value === null) throw new Error('cannot write null')
   this.value = null
   this._async(value, this._written.bind(this))
 }
@@ -53,7 +51,6 @@ Single.prototype._written = function () {
 }
 
 Single.prototype.close = function (cb) {
-  console.log("CLOSE", !!this.writing, !!this.value)
   if(this.writing) this._cb = cb
   else if(this.value) {
     this._cb = cb
@@ -74,6 +71,4 @@ and duplicate some code though.
 and it's a different distinction from private/public.
 _cb is an update.
 */
-
-
 

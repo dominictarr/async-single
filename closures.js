@@ -30,7 +30,6 @@ module.exports = function (async, opts) {
         )
       : timeout
     )
-    if(timeout !== 0 && timer.unref) timer.unref()
   }
   return self = {
     writing: false,
@@ -54,4 +53,5 @@ also, delays the next write. It's getting pretty ugly now.
 but the tests are pretty good.
 
 */
+
 

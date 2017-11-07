@@ -33,9 +33,6 @@ Single.prototype._timeout = function (delay) {
       this._options.max - (Date.now() - this._ts)
     ) : delay
   )
-
-  if(delay !== 0)
-    this._timer.unref && this._timer.unref()
 }
 
 Single.prototype._written = function () {
@@ -71,4 +68,7 @@ and duplicate some code though.
 and it's a different distinction from private/public.
 _cb is an update.
 */
+
+
+
 

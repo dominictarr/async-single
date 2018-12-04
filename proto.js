@@ -5,10 +5,19 @@ function Single (async, opts) {
   if(!(this instanceof Single)) return new Single(async, opts)
   this.writing = false
   this.value = null
+  this._next = 0
   this.onDrain = null
   this._async = async
   this._options = opts || {}
-  this._setTimeout = opts && opts.setTimeout || function (fn, delay) { return setTimeout(fn, delay) }
+  this._setTimeout = opts && opts.setTimeout || function (fn, delay) {
+    return setTimeout(fn, delay)
+//    if(timer1) return
+//    timer1 = setTimeout(function () {
+//      timer1 = 0
+//      clearTimeout(timer2)
+//      timer2 = setTimeout(fn, delay)
+//    }, delay/2)
+  }
 }
 
 Single.prototype.write = function (value) {
@@ -25,13 +34,18 @@ Single.prototype._write = function () {
 }
 
 Single.prototype._timeout = function (delay) {
+  delay = (delay == null ? Math.max(
+      this._options.min,
+      this._options.max - (Date.now() - this._ts)
+    ) : delay) || 10
+
+  if(this._next && this._next > Date.now() + delay/2) return
+
+  this._next = Date.now() + (delay || 10)
   clearTimeout(this._timer)
   this._timer = this._setTimeout(
     this._write.bind(this),
-    delay == null ? Math.max(
-      this._options.min,
-      this._options.max - (Date.now() - this._ts)
-    ) : delay
+    delay
   )
 }
 
@@ -68,7 +82,4 @@ and duplicate some code though.
 and it's a different distinction from private/public.
 _cb is an update.
 */
-
-
-
 
